@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ktor-demo-js-7.0">
+    <output-path>$PROJECT_DIR$/build/libs</output-path>
+    <root id="archive" name="ktor-demo-js-7.0.jar">
+      <element id="module-output" name="ktor-demo.jsMain" />
+    </root>
+  </artifact>
+</component>
