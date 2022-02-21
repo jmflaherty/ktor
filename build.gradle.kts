@@ -11,7 +11,6 @@ plugins {
     kotlin("plugin.serialization") version "1.6.10"
     id("io.qameta.allure") version "2.9.6"
     id("com.diffplug.spotless") version "6.2.2"
-
 }
 
 group = "com.onfleet"
@@ -95,10 +94,17 @@ kotlin {
                 implementation("io.kotest.extensions:kotest-assertions-ktor:1.0.3")
 
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinxCoroutinesVersion")
+
+                implementation("com.epam.reportportal:agent-java-junit5:5.1.4")
+                implementation("com.epam.reportportal:logger-java-log4j:5.1.4")
+                implementation("org.apache.logging.log4j:log4j-api:2.17.1")
+                implementation("org.apache.logging.log4j:log4j-core:2.17.1")
+
             }
 
             tasks.withType<Test> {
                 useJUnitPlatform()
+                systemProperty("junit.jupiter.extensions.autodetection.enabled", true)
             }
 
             allure {
@@ -110,7 +116,6 @@ kotlin {
                     aspectjWeaver.set(true)
                 }
             }
-
 
         }
     }
