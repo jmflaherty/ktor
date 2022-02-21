@@ -1,119 +1,117 @@
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
-val kotlin_version: String by project
-val kotlinx_coroutines: String by project
-val ktor_version: String by project
-val logback_version: String by project
+val kotlinVersion: String by project
+val kotlinxCoroutinesVersion: String by project
+val ktorVersion: String by project
+val logbackVersion: String by project
 
 plugins {
-    kotlin("multiplatform") version "1.4.32"
-    kotlin("plugin.serialization") version "1.4.32"
+    kotlin("multiplatform") version "1.6.10"
+    kotlin("plugin.serialization") version "1.6.10"
+    id("io.qameta.allure") version "2.9.6"
+    id("com.diffplug.spotless") version "6.2.2"
+
 }
 
 group = "com.onfleet"
-version = "0.0.1"
+version = "0.0.2"
 
 tasks.wrapper {
-    version = "7.0"
+    version = "7.4"
     distributionType = DistributionType.ALL
 }
 
+spotless {
+    kotlin {
+        target("**/*.kt")
+        ktlint()
+        trimTrailingWhitespace()
+        indentWithSpaces()
+        endWithNewline()
+    }
+    kotlinGradle {
+        target("*.gradle.kts")
+        trimTrailingWhitespace()
+        indentWithSpaces()
+        endWithNewline()
+        ktlint()
+    }
+}
+
 repositories {
-    mavenLocal()
-    jcenter()
-    maven { url = uri("https://kotlin.bintray.com/ktor") }
-    maven { url = uri("https://kotlin.bintray.com/kotlinx") }
-    maven { url = uri("https://kotlin.bintray.com/kotlin-js-wrappers") }
+    mavenCentral()
+}
+
+tasks.withType<Test> {
+    outputs.upToDateWhen { false }
+    // finalizedBy("allureReport")
 }
 
 kotlin {
-    js(IR) {
-        nodejs {
-            binaries.executable()
-        }
-    }
     jvm {
-    }
-    ios{
-        binaries {
-            framework {
-                baseName = "commonMain"
-            }
-        }
     }
     sourceSets {
         commonMain {
+            kotlin
             kotlin.srcDirs("src/commonMain")
             resources.srcDirs("commonMain/resources")
             dependencies {
-                implementation("io.ktor:ktor-client-core:$ktor_version")
-                implementation("ch.qos.logback:logback-classic:$logback_version")
-                implementation("io.ktor:ktor-client-logging:$ktor_version")
-                implementation("io.ktor:ktor-client-serialization:$ktor_version")
+                implementation("io.ktor:ktor-client-core:$ktorVersion")
+                implementation("ch.qos.logback:logback-classic:$logbackVersion")
+                implementation("io.ktor:ktor-client-logging:$ktorVersion")
+                implementation("io.ktor:ktor-client-serialization:$ktorVersion")
 
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
             }
         }
         commonTest {
             kotlin.srcDirs("src/commonTest")
             resources.srcDirs("commonTest")
-            dependencies { }
+            dependencies {
+                implementation("io.kotest:kotest-assertions-core:5.1.0")
+            }
         }
         val jvmMain by getting {
             kotlin.srcDirs("src/jvmMain")
             dependencies {
-                implementation("io.ktor:ktor-client-cio:$ktor_version")
+                implementation("io.ktor:ktor-client-cio:$ktorVersion")
             }
         }
         val jvmTest by getting {
             kotlin.srcDirs("src/jvmTest")
             dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
-                implementation(kotlin("test-junit"))
+//                implementation(kotlin("test-common"))
+//                implementation(kotlin("test-annotations-common"))
+//                implementation(kotlin("test-junit"))
 
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinx_coroutines")
+                implementation("io.kotest:kotest-runner-junit5:5.1.0")
+                implementation("io.kotest:kotest-assertions-core:5.1.0")
+                implementation("io.kotest:kotest-property:5.1.0")
+                implementation("io.kotest:kotest-extensions-junitxml:5.1.0")
+                implementation("io.kotest:kotest-extensions-htmlreporter-jvm:5.1.0")
+                implementation("io.kotest.extensions:kotest-extensions-allure:1.0.1")
+
+                implementation("io.kotest.extensions:kotest-assertions-ktor:1.0.3")
+
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinxCoroutinesVersion")
             }
-        }
-        val jsMain by getting {
-            kotlin.srcDirs("src/jsMain")
-            dependencies {
-                implementation(kotlin("stdlib-js"))
-                implementation("io.ktor:ktor-client-js:$ktor_version")
-                implementation("io.ktor:ktor-client-serialization:$ktor_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$kotlinx_coroutines")
+
+            tasks.withType<Test> {
+                useJUnitPlatform()
             }
-        }
-        val jsTest by getting {
-            kotlin.srcDirs("src/jsTest")
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-test-js")
+
+            allure {
+                adapter {
+                    //allureJavaVersion.set("2.15.0")
+                    //aspectjVersion.set("1.9.5")
+                    autoconfigure.set(true)
+                    autoconfigureListeners.set(true)
+                    aspectjWeaver.set(true)
+                }
             }
-        }
-        val iosMain by getting {
-            kotlin.srcDirs("src/iosMain")
-            dependencies {
-                implementation("io.ktor:ktor-client-ios:$ktor_version")
-            }
-        }
-        val iosTest by getting {
-            kotlin.srcDirs("src/iosTest")
+
+
         }
     }
 }
-
-val packForXcode by tasks.creating(Sync::class) {
-    group = "build"
-    val mode = System.getenv("CONFIGURATION") ?: "DEBUG"
-    val sdkName = System.getenv("SDK_NAME") ?: "iphonesimulator"
-    val targetName = "ios" + if (sdkName.startsWith("iphoneos")) "Arm64" else "X64"
-    val framework = kotlin.targets.getByName<KotlinNativeTarget>(targetName).binaries.getFramework(mode)
-    inputs.property("mode", mode)
-    dependsOn(framework.linkTask)
-    val targetDir = File(buildDir, "xcode-frameworks")
-    from({ framework.outputDirectory })
-    into(targetDir)
-}
-
-tasks.getByName("build").dependsOn(packForXcode)

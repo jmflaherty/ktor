@@ -6,6 +6,8 @@
       <module name="ktor-demo.commonTest" target="1.6" />
       <module name="ktor-demo.jvmMain" target="1.6" />
       <module name="ktor-demo.jvmTest" target="1.6" />
+      <module name="ktor-mpp.commonTest" target="1.8" />
+      <module name="ktor-mpp.jvmTest" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

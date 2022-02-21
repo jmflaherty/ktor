@@ -1,32 +1,39 @@
 package com.jmflaherty.client
 
 import com.jmflaherty.client.ApplicationApi.client
-import io.ktor.client.request.get
-import io.ktor.client.request.url
-import io.ktor.http.Url
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.channelFlow
 import kotlin.js.ExperimentalJsExport
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 
 @ExperimentalJsExport
 object ApiCalls {
     private val address = Url("https://cors-test.appspot.com/test")
 
-    suspend fun asyncAbout(retries: Int = 5) {
-        coroutineScope {
-            repeat(retries) {
-                async {
-                    val result: String = client.get { url(address.toString()) }
-                }
-            }
-        }
+    suspend fun about(): HttpResponse {
+        return client.get<HttpResponse>(url = address)
     }
 
-    suspend fun syncAbout(retries: Int = 5) {
-        coroutineScope {
-            repeat(retries) {
-                val result: String = client.get { url(address.toString()) }
-            }
+    suspend fun aboutFlow(amount: Int): Flow<HttpResponse> = channelFlow<HttpResponse> {
+        repeat(amount) {
+            println("REQUEST NUMBER $it")
+            trySend(about())
         }
-    }
+    }.buffer()
+
+    suspend fun aboutAsyncFlow(amount: Int): Flow<HttpResponse> = channelFlow<HttpResponse> {
+        repeat(amount) {
+            async {
+                println("REQUEST NUMBER $it")
+                trySend(about())
+            }.start()
+        }
+    }.buffer()
+
 }
+
+
