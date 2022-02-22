@@ -1,1 +1,1 @@
-rootProject.name = "ktor-mpp"
+rootProject.name = "ktor"
