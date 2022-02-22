@@ -4,7 +4,7 @@ import com.epam.reportportal.junit5.ReportPortalExtension
 import com.jmflaherty.client.ApiCalls
 import io.kotest.assertions.ktor.client.shouldHaveStatus
 import io.kotest.core.spec.style.AnnotationSpec
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -15,8 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExperimentalCoroutinesApi
 @OptIn(DelicateCoroutinesApi::class)
 @ExtendWith(ReportPortalExtension::class)
-class ApplicationTest : AnnotationSpec() {
-    private val amount = 100
+class Kotest : AnnotationSpec() {
+    private val amount = 10
 
     @Test
     fun testSync(): Unit = runBlocking {

@@ -1,14 +1,13 @@
 package com.jmflaherty.client
 
 import com.jmflaherty.client.ApplicationApi.client
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.Url
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
-import kotlin.js.ExperimentalJsExport
-import kotlinx.coroutines.async
 
 object ApiCalls {
     private val address = Url("https://cors-test.appspot.com/test")
@@ -19,7 +18,6 @@ object ApiCalls {
 
     suspend fun aboutFlow(amount: Int): Flow<HttpResponse> = channelFlow<HttpResponse> {
         repeat(amount) {
-            println("REQUEST NUMBER $it")
             trySend(about())
         }
     }.buffer()
