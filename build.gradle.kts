@@ -51,13 +51,14 @@ tasks.withType<Test>().configureEach {
 
 dependencies {
     implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-serialization:$ktorVersion")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinxCoroutinesVersion")
 
     implementation("io.kotest:kotest-runner-junit5:5.1.0")
     implementation("io.kotest:kotest-assertions-core:5.1.0")
@@ -72,7 +73,6 @@ dependencies {
     implementation("com.epam.reportportal:agent-java-junit5:5.1.1")
     implementation("com.epam.reportportal:logger-java-logback:5.1.1")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinxCoroutinesVersion")
 }
 
 allure {
