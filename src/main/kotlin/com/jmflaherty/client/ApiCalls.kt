@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlin.js.ExperimentalJsExport
 import kotlinx.coroutines.async
 
-@ExperimentalJsExport
 object ApiCalls {
     private val address = Url("https://cors-test.appspot.com/test")
 
@@ -28,7 +27,6 @@ object ApiCalls {
     suspend fun aboutAsyncFlow(amount: Int): Flow<HttpResponse> = channelFlow<HttpResponse> {
         repeat(amount) {
             async {
-                println("REQUEST NUMBER $it")
                 trySend(about())
             }.start()
         }
